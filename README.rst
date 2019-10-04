@@ -4,6 +4,11 @@ sengiri
 
 sengiri is yet another sentence-level tokenizer for the Japanese text
 
+Dependencies
+==============
+
+MeCab
+
 INSTALLATION
 ==============
 
