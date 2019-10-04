@@ -11,6 +11,20 @@ re_delimiter = re.compile('\t([…。．！？\!\?―\t]+)')
 
 
 def tokenize(doc, mecab_args=''):
+    """Split document into sentences
+
+    Parameters
+    ----------
+    doc : str
+        Document
+    mecab_args : str
+        Arguments for MeCab's Tagger
+
+    Return
+    ------
+    list
+        Sentences.
+    """
     doc = re_emoji.sub(lambda x: x.group(1)+'\n', doc)
     doc = re_parenthesis.sub(lambda x: '\n'+x.group(1)+'\n', doc)
 
