@@ -8,3 +8,5 @@ def test_tokenize():
     assert_equal(actual, ['うーん🤔🤔🤔', 'どうしよう'])
     actual = sengiri.tokenize('モー娘。のコンサートに行った。')
     assert_equal(actual, ['モー娘。のコンサートに行った。'])
+    actual = sengiri.tokenize('楽しかったし嬉しかった。すごく充実した!')
+    assert_equal(actual, ['楽しかったし嬉しかった。', 'すごく充実した!'])
