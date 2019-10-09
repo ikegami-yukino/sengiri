@@ -32,7 +32,7 @@ def tokenize(doc, mecab_args=''):
         tagger = MeCab.Tagger('-F %m\\t --eos-format=\n ' + mecab_args)
         segmented_words = tagger.parse(line)
         segmented_words = re_delimiter.sub(lambda x: x.group(1)+'\n', segmented_words)
-        if any(word in EMOJI_SET for word in segmented_words.split('\t')):
+        if any(c in EMOJI_SET for c in segmented_words):
             segmented_words = re_emoji.sub(lambda x: x.group(1)+'\n', segmented_words)
         segmented_words = segmented_words.replace('\t', '')
         for l in segmented_words.splitlines():
