@@ -1,6 +1,7 @@
 from nose.tools import assert_equal
 import sengiri
 
+
 def test_tokenize():
     actual = sengiri.tokenize('うーん🤔🤔🤔どうしよう')
     assert_equal(actual, ['うーん🤔🤔🤔', 'どうしよう'])
