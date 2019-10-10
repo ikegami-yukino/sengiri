@@ -2,8 +2,8 @@ import re
 
 import MeCab
 
-re_parenthesis = re.compile('([\(（][^！？\!\?。．・…]*[！？\!\?。．・…]+[\)）])')
 re_delimiter = re.compile('\t([…。．！？\!\?―\t\]]+)(?!\))')
+re_parenthesis = re.compile('([%s])([\(（][^\)）]{10,}[\)）])' % ''.join(DELIMITERS))
 
 
 def tokenize(doc, mecab_args=''):
@@ -21,7 +21,7 @@ def tokenize(doc, mecab_args=''):
     list
         Sentences.
     """
-    doc = re_parenthesis.sub(lambda x: '\n'+x.group(1)+'\n', doc)
+    doc = re_parenthesis.sub(lambda m: m.group(1) + '\n' + m.group(2) + '\n', doc)
 
     result = []
     for line in doc.splitlines():
