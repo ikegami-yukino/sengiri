@@ -7,12 +7,12 @@ from setuptools import setup
 
 try:
     import MeCab
-    install_requires = ['emoji']
+    install_requires = None
 except:
     if platform.system() == 'Windows':
-        install_requires = ['emoji', 'mecab-python-windows']
+        install_requires = ['mecab-python-windows']
     else:
-        install_requires = ['emoji', 'mecab-python3']
+        install_requires = ['mecab-python3']
 
 with open(os.path.join('sengiri', '__init__.py'), 'r', encoding='utf8') as f:
     version = re.compile(
