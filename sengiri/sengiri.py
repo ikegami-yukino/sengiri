@@ -1,7 +1,9 @@
 import re
 
+import emoji
 import MeCab
 
+EMOJIS = set(emoji.UNICODE_EMOJI.keys())
 DELIMITERS = set({'。', '．', '…', '・・・', '...', '！',
                   '!', '？', '?', '！？', '？！', '!?', '?!'})
 re_parenthesis = re.compile('([%s])([\(（][^\)）]{10,}[\)）])' % ''.join(DELIMITERS))
@@ -19,8 +21,9 @@ def _analyze_by_mecab(line, mecab_args):
         (surface, features) = line.split('\t')
 
         if (features.startswith('記号,一般,')
-            or any(surface == d for d in DELIMITERS)
-                or all(c in DELIMITERS for c in surface)):
+            or surface in EMOJIS
+                or any(surface == d for d in DELIMITERS)
+                    or all(c in DELIMITERS for c in surface)):
             has_delimiter = True
         elif (result and result[-1][-1] not in ('http://', 'https://')
                 and surface in ('w', 'www')):

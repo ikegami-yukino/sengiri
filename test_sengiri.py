@@ -21,3 +21,6 @@ def test_tokenize():
     assert_equal(actual, ['楽しかったw', 'また遊ぼwww'])
     actual = sengiri.tokenize('http://www.inpaku.go.jp/')
     assert_equal(actual, ['http://www.inpaku.go.jp/'])
+    text = '機械学習と統計的推論と微分幾何と関数解析と統計力学の動画！😎✌️'
+    actual = sengiri.tokenize(text)
+    assert_equal(actual, [text])
