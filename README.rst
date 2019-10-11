@@ -4,10 +4,11 @@ sengiri
 
 Yet another sentence-level tokenizer for the Japanese text
 
-DEPENDENCY
+DEPENDENCIES
 ==============
 
-MeCab
+- MeCab
+- emoji
 
 INSTALLATION
 ==============
