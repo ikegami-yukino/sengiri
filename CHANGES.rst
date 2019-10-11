@@ -1,11 +1,11 @@
 CHANGES
 =======
 
-0.2 (2019-10-11)
+0.2.1 (2019-10-12)
 ------------------
 
 - Works well with also a text including emoticon and www (Laughing expression)
-- no longer use emoji package
+- Always treat emoji to delimiter regardless MeCab's POS
 
 0.1.1 (2019-10-05)
 ------------------
