@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+0.2.2 (2019-10-15)
+------------------
+
+- In tokenize() method, `emoji_threshold` parameter is available
+- Bugfix
+
 0.2.1 (2019-10-12)
 ------------------
 
