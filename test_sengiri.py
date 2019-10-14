@@ -27,7 +27,7 @@ def test_analyze_by_mecab():
     test_cases = copy.copy(TEST_CASES)
     del test_cases['大変なことになった。（後で聞いたのだが、脅されたらしい）（脅迫はやめてほしいと言っているのに）']
     for (source, expected) in test_cases.items():
-        actual = sengiri.sengiri._analyze_by_mecab(source, '')
+        actual = sengiri.sengiri._analyze_by_mecab(source, '', 3)
         assert_equal(actual, expected)
 
 
