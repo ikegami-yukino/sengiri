@@ -7,33 +7,44 @@ EMOJIS = set(emoji.UNICODE_EMOJI.keys())
 DELIMITERS = set({'。', '．', '…', '・・・', '...', '！',
                   '!', '？', '?', '！？', '？！', '!?', '?!'})
 re_parenthesis = re.compile('([%s])([\(（][^\)）]{10,}[\)）])' % ''.join(DELIMITERS))
+EMOJI_THRESHOLD = 3
+LOUGHING = ('w', 'ww', 'www', 'wwww')
+
+
+def _has_delimiter(surface, features):
+    return (features.startswith('記号,一般,')
+            or any(surface == d for d in DELIMITERS)
+                or all(c in DELIMITERS for c in surface))
 
 
 def _analyze_by_mecab(line, mecab_args):
     tagger = MeCab.Tagger(mecab_args)
+    pairs = [l.split('\t') for l in tagger.parse(line).splitlines()[:-1]]
+
     result = []
-    has_delimiter = False
-    for line in tagger.parse(line).splitlines():
-        line = line.rstrip()
-        if line == 'EOS':
-            break
+    has_delimiter_flag = False
+    emoji_count = 0
 
-        (surface, features) = line.split('\t')
-
-        if (features.startswith('記号,一般,')
-            or surface in EMOJIS
-                or any(surface == d for d in DELIMITERS)
-                    or all(c in DELIMITERS for c in surface)):
-            has_delimiter = True
-        elif (result and result[-1][-1] not in ('http://', 'https://')
-                and surface in ('w', 'www')):
-            has_delimiter = True
-        elif has_delimiter is True and surface == '.' and result[-1][-1] in ('w', 'www'):
-            has_delimiter = False
-        elif has_delimiter is True:
-            has_delimiter = False
+    for (i, (surface, features)) in enumerate(pairs):
+        if surface in EMOJIS:
+            emoji_count += 1
+            if emoji_count >= EMOJI_THRESHOLD and i < len(pairs) and pairs[i+1][0] not in EMOJIS:
+                result[-1].append(surface)
+                result[-1] = ''.join(result[-1])
+                result.append([])
+                emoji_count = 0
+                continue
+        elif _has_delimiter(surface, features):
+            has_delimiter_flag = True
+        elif (result and result[-1] and result[-1][-1] not in ('http://', 'https://')
+                and surface in LOUGHING):
+            has_delimiter_flag = True
+        elif has_delimiter_flag is True and surface == '.' and result[-1][-1] in LOUGHING:
+            has_delimiter_flag = False
+        elif has_delimiter_flag is True:
             result[-1] = ''.join(result[-1])
             result.append([])
+            has_delimiter_flag = False
 
         if not result:
             result.append([])

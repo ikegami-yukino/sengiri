@@ -1,26 +1,37 @@
-from nose.tools import assert_equal
-import sengiri
+import copy
+
+from nose.tools import assert_equal, assert_true
+import sengiri.sengiri
+
+TEST_CASES = {
+    'うーん🤔🤔🤔どうしよう': ['うーん🤔🤔🤔', 'どうしよう'],
+    'モー娘。のコンサートに行った。': ['モー娘。のコンサートに行った。'],
+    '楽しかったし嬉しかった。すごく充実した!': ['楽しかったし嬉しかった。', 'すごく充実した!'],
+    'ありがとう＾＾ 助かります。': ['ありがとう＾＾', '助かります。'],
+    '大変なことになった。（後で聞いたのだが、脅されたらしい）（脅迫はやめてほしいと言っているのに）':
+        ['大変なことになった。', '（後で聞いたのだが、脅されたらしい）', '（脅迫はやめてほしいと言っているのに）'],
+    '楽しかったw また遊ぼwww': ['楽しかったw', 'また遊ぼwww'],
+    'http://www.inpaku.go.jp/': ['http://www.inpaku.go.jp/'],
+    '機械学習と統計的推論と微分幾何と関数解析と統計力学の動画！😎✌️':
+        ['機械学習と統計的推論と微分幾何と関数解析と統計力学の動画！😎✌️'],
+    '奇声を発しながら🦑をやっとる…': ['奇声を発しながら🦑をやっとる…']
+}
+
+
+def test_has_delimiter():
+    assert_true(sengiri.sengiri._has_delimiter('♡', '記号,一般,*,*,*,*,♡,,,,'))
+    assert_true(sengiri.sengiri._has_delimiter('。', '記号,句点,*,*,*,*,。,。,。'))
+
+
+def test_analyze_by_mecab():
+    test_cases = copy.copy(TEST_CASES)
+    del test_cases['大変なことになった。（後で聞いたのだが、脅されたらしい）（脅迫はやめてほしいと言っているのに）']
+    for (source, expected) in test_cases.items():
+        actual = sengiri.sengiri._analyze_by_mecab(source, '')
+        assert_equal(actual, expected)
 
 
 def test_tokenize():
-    actual = sengiri.tokenize('うーん🤔🤔🤔どうしよう')
-    assert_equal(actual, ['うーん🤔🤔🤔', 'どうしよう'])
-    actual = sengiri.tokenize('モー娘。のコンサートに行った。')
-    assert_equal(actual, ['モー娘。のコンサートに行った。'])
-    actual = sengiri.tokenize('楽しかったし嬉しかった。すごく充実した!')
-    assert_equal(actual, ['楽しかったし嬉しかった。', 'すごく充実した!'])
-    actual = sengiri.tokenize('ありがとう＾＾ 助かります。')
-    assert_equal(actual, ['ありがとう＾＾', '助かります。'])
-    actual = sengiri.tokenize('子供が大変なことになった。'
-                              '（後で聞いたのだが、脅されたらしい）'
-                              '（脅迫はやめてほしいと言っているのに）')
-    assert_equal(actual, ['子供が大変なことになった。',
-                          '（後で聞いたのだが、脅されたらしい）',
-                          '（脅迫はやめてほしいと言っているのに）'])
-    actual = sengiri.tokenize('楽しかったw また遊ぼwww')
-    assert_equal(actual, ['楽しかったw', 'また遊ぼwww'])
-    actual = sengiri.tokenize('http://www.inpaku.go.jp/')
-    assert_equal(actual, ['http://www.inpaku.go.jp/'])
-    text = '機械学習と統計的推論と微分幾何と関数解析と統計力学の動画！😎✌️'
-    actual = sengiri.tokenize(text)
-    assert_equal(actual, [text])
+    for (source, expected) in TEST_CASES.items():
+        actual = sengiri.tokenize(source)
+        assert_equal(actual, expected)
