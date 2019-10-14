@@ -25,10 +25,10 @@ def _analyze_by_mecab(line, mecab_args):
     has_delimiter_flag = False
     emoji_count = 0
 
-    for (i, (surface, features)) in enumerate(pairs):
         if surface in EMOJIS:
             emoji_count += 1
             if emoji_count >= EMOJI_THRESHOLD and i < len(pairs) and pairs[i+1][0] not in EMOJIS:
+    for (i, (surface, features)) in enumerate(pairs[:-1]):
                 result[-1].append(surface)
                 result[-1] = ''.join(result[-1])
                 result.append([])
@@ -50,6 +50,7 @@ def _analyze_by_mecab(line, mecab_args):
             result.append([])
         result[-1].append(surface)
 
+    result[-1].append(pairs[-1][0])
     result[-1] = ''.join(result[-1])
     return result
 
