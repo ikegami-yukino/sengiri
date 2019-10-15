@@ -4,15 +4,18 @@ import emoji
 import MeCab
 
 EMOJIS = set(emoji.UNICODE_EMOJI.keys())
-DELIMITERS = set({'。', '．', '…', '・・・', '...', '！',
-                  '!', '？', '?', '！？', '？！', '!?', '?!'})
+DELIMITERS = set({'。', '．', '…', '・・・', '...', '！', '!', '？', '?',
+                  '！？', '？！', '!?', '?!'})
+OPEN_BRACKETS = '｢「(（[［【『〈《〔｛{«‹〖〘〚'
+CLOSE_BRACKETS = '｣」)）]］】』〉》〕｝}»›〗〙〛'
+BRACKETS = set(OPEN_BRACKETS) | set(CLOSE_BRACKETS)
 LOUGHING = ('w', 'ww', 'www', 'wwww')
 re_parenthesis = None
 prev_parenthesis_threshold = 0
 
 
 def _has_delimiter(surface, features):
-    return (features.startswith('記号,一般,')
+    return ((features.startswith('記号,一般,') and surface not in BRACKETS)
             or any(surface == d for d in DELIMITERS)
                 or all(c in DELIMITERS for c in surface))
 
@@ -34,6 +37,8 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
                 result.append([])
                 emoji_count = 0
                 continue
+        elif surface in BRACKETS:
+            has_delimiter_flag = False
         elif _has_delimiter(surface, features):
             has_delimiter_flag = True
 
