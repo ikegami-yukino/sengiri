@@ -20,7 +20,7 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
     tagger = MeCab.Tagger(mecab_args)
     pairs = [l.split('\t') for l in tagger.parse(line).splitlines()[:-1]]
 
-    result = []
+    result = [[]]
     has_delimiter_flag = False
     emoji_count = 0
 
@@ -45,10 +45,11 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
             result.append([])
             has_delimiter_flag = False
 
-        if not result:
-            result.append([])
         result[-1].append(surface)
 
+    if has_delimiter_flag and not _has_delimiter(*pairs[-1]):
+        result[-1] = ''.join(result[-1])
+        result.append([])
     result[-1].append(pairs[-1][0])
     result[-1] = ''.join(result[-1])
     return result
