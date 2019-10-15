@@ -6,8 +6,9 @@ import MeCab
 EMOJIS = set(emoji.UNICODE_EMOJI.keys())
 DELIMITERS = set({'。', '．', '…', '・・・', '...', '！',
                   '!', '？', '?', '！？', '？！', '!?', '?!'})
-re_parenthesis = re.compile('([%s])([\(（][^\)）]{10,}[\)）])' % ''.join(DELIMITERS))
 LOUGHING = ('w', 'ww', 'www', 'wwww')
+re_parenthesis = None
+prev_parenthesis_threshold = 0
 
 
 def _has_delimiter(surface, features):
@@ -58,7 +59,7 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
     return result
 
 
-def tokenize(doc, mecab_args='', emoji_threshold=3):
+def tokenize(doc, mecab_args='', emoji_threshold=3, parenthesis_threshold=10):
     """Split document into sentences
 
     Parameters
@@ -69,12 +70,23 @@ def tokenize(doc, mecab_args='', emoji_threshold=3):
         Arguments for MeCab's Tagger
     emoji_threshold : int
         The numbers of emoji as sentence delimiter
+    parenthesis_threshold : int
+        The numbers of characters in parenthesis to delimit doc
 
     Return
     ------
     list
         Sentences.
     """
+    global re_parenthesis, prev_parenthesis_threshold
+
+    if prev_parenthesis_threshold != parenthesis_threshold:
+        prev_parenthesis_threshold = parenthesis_threshold
+        re_parenthesis = re.compile('([%s])([%s][^%s]{%s,}[%s])'
+                                    % (''.join(DELIMITERS), re.escape(OPEN_BRACKETS),
+                                       re.escape(CLOSE_BRACKETS), parenthesis_threshold,
+                                       re.escape(CLOSE_BRACKETS)))
+
     doc = re_parenthesis.sub(lambda m: m.group(1) + '\n' + m.group(2) + '\n', doc)
 
     result = []
