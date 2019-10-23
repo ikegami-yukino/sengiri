@@ -42,7 +42,7 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
         elif _has_delimiter(surface, features):
             has_delimiter_flag = True
 
-        # www is not included in URL
+        # Check www is not in part of URL
         elif (result and result[-1] and result[-1][-1] not in ('http://', 'https://')
                 and surface in LOUGHING):
             has_delimiter_flag = True
