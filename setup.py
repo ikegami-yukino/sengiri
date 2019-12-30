@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 from codecs import open
 import os
-import platform
+import pkgutil
 import re
 from setuptools import setup
 
-try:
-    import MeCab
-    install_requires = ['emoji']
-except:
-    if platform.system() == 'Windows':
-        install_requires = ['emoji', 'mecab-python-windows']
-    else:
-        install_requires = ['emoji', 'mecab-python3']
+install_requires = ['emoji'] if pkgutil.find_loader('MeCab') else ['emoji', 'mecab']
 
 with open(os.path.join('sengiri', '__init__.py'), 'r', encoding='utf8') as f:
     version = re.compile(
@@ -47,5 +40,6 @@ setup(
     long_description='%s\n\n%s' % (open('README.rst', encoding='utf8').read(),
                                    open('CHANGES.rst', encoding='utf8').read()),
     install_requires=install_requires,
+    tests_require=['nose'],
     test_suite='nose.collector'
 )
