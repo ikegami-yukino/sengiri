@@ -9,7 +9,7 @@ DELIMITERS = set({'。', '．', '…', '・・・', '...', '！', '!', '？', '?
 OPEN_BRACKETS = '｢「(（[［【『〈《〔｛{«‹〖〘〚'
 CLOSE_BRACKETS = '｣」)）]］】』〉》〕｝}»›〗〙〛'
 BRACKETS = set(OPEN_BRACKETS) | set(CLOSE_BRACKETS)
-LOUGHING = ('w', 'ww', 'www', 'wwww')
+LAUGHING = ('w', 'ww', 'www', 'wwww')
 re_parenthesis = None
 prev_parenthesis_threshold = 0
 
@@ -44,9 +44,9 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
 
         # Check www is not in a part of URL
         elif (result and result[-1] and result[-1][-1] not in ('http://', 'https://')
-                and surface in LOUGHING):
+                and surface in LAUGHING):
             has_delimiter_flag = True
-        elif has_delimiter_flag is True and surface == '.' and result[-1][-1] in LOUGHING:
+        elif has_delimiter_flag is True and surface == '.' and result[-1][-1] in LAUGHING:
             has_delimiter_flag = False
 
         elif has_delimiter_flag is True:
