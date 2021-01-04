@@ -17,12 +17,12 @@ prev_max_num_char_in_parenthesis = 0
 def _has_delimiter(surface, features):
     return ((features.startswith('記号,一般,') and surface not in BRACKETS)
             or any(surface == d for d in DELIMITERS)
-                or all(c in DELIMITERS for c in surface))
+            or all(c in DELIMITERS for c in surface))
 
 
 def _analyze_by_mecab(line, mecab_args, max_num_emoji):
     tagger = MeCab.Tagger(mecab_args)
-    pairs = [l.split('\t') for l in tagger.parse(line).splitlines()[:-1]]
+    pairs = [r.split('\t') for r in tagger.parse(line).splitlines()[:-1]]
 
     result = [[]]
     has_delimiter_flag = False
@@ -31,7 +31,7 @@ def _analyze_by_mecab(line, mecab_args, max_num_emoji):
     for (i, (surface, features)) in enumerate(pairs[:-1]):
         if all(c in EMOJIS for c in surface):
             emoji_count += len(surface)
-            if result and emoji_count >= max_num_emoji and pairs[i+1][0] not in EMOJIS:
+            if result and emoji_count >= max_num_emoji and pairs[i + 1][0] not in EMOJIS:
                 result[-1].append(surface)
                 result[-1] = ''.join(result[-1])
                 result.append([])
@@ -46,10 +46,10 @@ def _analyze_by_mecab(line, mecab_args, max_num_emoji):
         elif (result and result[-1] and result[-1][-1] not in ('http://', 'https://')
                 and surface in LAUGHING):
             has_delimiter_flag = True
-        elif has_delimiter_flag is True and surface == '.' and result[-1][-1] in LAUGHING:
+        elif has_delimiter_flag and surface == '.' and result[-1][-1] in LAUGHING:
             has_delimiter_flag = False
 
-        elif has_delimiter_flag is True:
+        elif has_delimiter_flag:
             result[-1] = ''.join(result[-1])
             result.append([])
             has_delimiter_flag = False
