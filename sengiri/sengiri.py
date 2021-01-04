@@ -20,7 +20,7 @@ def _has_delimiter(surface, features):
                 or all(c in DELIMITERS for c in surface))
 
 
-def _analyze_by_mecab(line, mecab_args, emoji_threshold):
+def _analyze_by_mecab(line, mecab_args, max_num_emoji):
     tagger = MeCab.Tagger(mecab_args)
     pairs = [l.split('\t') for l in tagger.parse(line).splitlines()[:-1]]
 
@@ -31,7 +31,7 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
     for (i, (surface, features)) in enumerate(pairs[:-1]):
         if all(c in EMOJIS for c in surface):
             emoji_count += len(surface)
-            if result and emoji_count >= emoji_threshold and pairs[i+1][0] not in EMOJIS:
+            if result and emoji_count >= max_num_emoji and pairs[i+1][0] not in EMOJIS:
                 result[-1].append(surface)
                 result[-1] = ''.join(result[-1])
                 result.append([])
@@ -61,7 +61,7 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold):
     return result
 
 
-def tokenize(doc, mecab_args='', emoji_threshold=3, parenthesis_threshold=10):
+def tokenize(doc, mecab_args='', max_num_emoji=3, parenthesis_threshold=10):
     """Split document into sentences
 
     Parameters
@@ -70,7 +70,7 @@ def tokenize(doc, mecab_args='', emoji_threshold=3, parenthesis_threshold=10):
         Document
     mecab_args : str
         Arguments for MeCab's Tagger
-    emoji_threshold : int
+    max_num_emoji : int
         The numbers of emoji as sentence delimiter
     parenthesis_threshold : int
         The numbers of characters in parenthesis to delimit doc
@@ -93,5 +93,5 @@ def tokenize(doc, mecab_args='', emoji_threshold=3, parenthesis_threshold=10):
 
     result = []
     for line in filter(bool, doc.splitlines()):
-        result += _analyze_by_mecab(line, mecab_args, emoji_threshold)
+        result += _analyze_by_mecab(line, mecab_args, max_num_emoji)
     return result
