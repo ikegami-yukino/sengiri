@@ -73,7 +73,7 @@ def tokenize(doc, mecab_args='', max_num_emoji=3, max_num_char_in_parenthesis=10
     max_num_emoji : int
         The numbers of emoji as sentence delimiter
     max_num_char_in_parenthesis : int
-        The numbers of characters in parenthesis to delimit document
+        The numbers of characters in parenthesis to split document
 
     Return
     ------
