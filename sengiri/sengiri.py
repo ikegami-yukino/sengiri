@@ -11,7 +11,7 @@ CLOSE_BRACKETS = '｣」)）]］】』〉》〕｝}»›〗〙〛'
 BRACKETS = set(OPEN_BRACKETS) | set(CLOSE_BRACKETS)
 LAUGHING = ('w', 'ww', 'www', 'wwww')
 re_parenthesis = None
-prev_parenthesis_threshold = 0
+prev_max_num_char_in_parenthesis = 0
 
 
 def _has_delimiter(surface, features):
@@ -61,7 +61,7 @@ def _analyze_by_mecab(line, mecab_args, max_num_emoji):
     return result
 
 
-def tokenize(doc, mecab_args='', max_num_emoji=3, parenthesis_threshold=10):
+def tokenize(doc, mecab_args='', max_num_emoji=3, max_num_char_in_parenthesis=10):
     """Split document into sentences
 
     Parameters
@@ -72,21 +72,21 @@ def tokenize(doc, mecab_args='', max_num_emoji=3, parenthesis_threshold=10):
         Arguments for MeCab's Tagger
     max_num_emoji : int
         The numbers of emoji as sentence delimiter
-    parenthesis_threshold : int
-        The numbers of characters in parenthesis to delimit doc
+    max_num_char_in_parenthesis : int
+        The numbers of characters in parenthesis to delimit document
 
     Return
     ------
     list
         Sentences.
     """
-    global re_parenthesis, prev_parenthesis_threshold
+    global re_parenthesis, prev_max_num_char_in_parenthesis
 
-    if prev_parenthesis_threshold != parenthesis_threshold:
-        prev_parenthesis_threshold = parenthesis_threshold
+    if prev_max_num_char_in_parenthesis != max_num_char_in_parenthesis:
+        prev_max_num_char_in_parenthesis = max_num_char_in_parenthesis
         re_parenthesis = re.compile('([%s])([%s][^%s]{%s,}[%s])'
                                     % (''.join(DELIMITERS), re.escape(OPEN_BRACKETS),
-                                       re.escape(CLOSE_BRACKETS), parenthesis_threshold,
+                                       re.escape(CLOSE_BRACKETS), max_num_char_in_parenthesis,
                                        re.escape(CLOSE_BRACKETS)))
 
     doc = re_parenthesis.sub(lambda m: m.group(1) + '\n' + m.group(2) + '\n', doc)
