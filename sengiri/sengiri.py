@@ -3,7 +3,7 @@ import re
 import emoji
 import MeCab
 
-EMOJIS = set(emoji.UNICODE_EMOJI.keys())
+EMOJIS = set(emoji.unicode_codes.EMOJI_DATA.keys())
 DELIMITERS = set({'。', '．', '…', '・・・', '...', '！', '!', '？', '?',
                   '！？', '？！', '!?', '?!'})
 OPEN_BRACKETS = '｢「(（[［【『〈《〔｛{«‹〖〘〚'
