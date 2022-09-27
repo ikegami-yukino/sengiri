@@ -3,6 +3,8 @@ import re
 import emoji
 import MeCab
 
+import platform
+
 EMOJIS = set(emoji.unicode_codes.EMOJI_DATA.keys())
 DELIMITERS = set({'。', '．', '…', '・・・', '...', '！', '!', '？', '?',
                   '！？', '？！', '!?', '?!'})
@@ -23,6 +25,16 @@ def _has_delimiter(surface, features):
 def _analyze_by_mecab(line, mecab_args, emoji_threshold):
     tagger = MeCab.Tagger(mecab_args)
     pairs = [l.split('\t') for l in tagger.parse(line).splitlines()[:-1]]
+
+    
+    if platform.architecture()[0] == '64bit':
+        # Python 64bit + MeCab 64bit
+        pairs = [(i[0], i[4]) for i in pairs]
+
+    else:
+        # Python 32bit + MeCab 32bit
+        pairs = [(i[0], i[1]) for i in pairs]
+
 
     result = [[]]
     has_delimiter_flag = False
