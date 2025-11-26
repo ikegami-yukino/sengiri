@@ -1,0 +1,63 @@
+name: sengiri test on Windows
+
+on:
+  push:
+    paths:
+      - ".github/workflows/test-windows.yml"
+      - "sengiri/**"
+      - "*.py"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/test-windows.yml"
+      - "sengiri/**"
+      - "*.py"
+
+jobs:
+  test:
+    name: Test
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+          - "3.13"
+          - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: setup python ${{ matrix.python }}
+      uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+      with:
+        python-version: ${{ matrix.python }}
+
+    - name: Cache mecab
+      id: cache-mecab
+      uses: actions/cache@v4
+      with:
+        path: C:/mecab
+        key: mecab-win-build
+
+    - name: Download MeCab Win and Unzip it
+      if: steps.cache-mecab.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        curl -LO "https://github.com/shogo82148/mecab/releases/download/v0.996.12/mecab-msvc-x64-0.996.12.zip"
+        unzip -o "mecab-msvc-x64-0.996.12.zip" -d c:/mecab
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .
+
+    - name: Run tests
+      run: |
+        python test_sengiri.py
+      env:
+        MECABRC: C:/mecab/mecabrc
+        MECABDIC: C:/mecab/dic/ipadic/
