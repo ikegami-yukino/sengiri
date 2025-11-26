@@ -1,7 +1,8 @@
 import copy
 
-from nose.tools import assert_equal, assert_true
+import unittest
 import sengiri.sengiri
+
 
 TEST_CASES = {
     'うーん🤔🤔🤔どうしよう': ['うーん🤔🤔🤔', 'どうしよう'],
@@ -20,20 +21,26 @@ TEST_CASES = {
 }
 
 
-def test_has_delimiter():
-    assert_true(sengiri.sengiri._has_delimiter('♡', '記号,一般,*,*,*,*,♡,,,,'))
-    assert_true(sengiri.sengiri._has_delimiter('。', '記号,句点,*,*,*,*,。,。,。'))
+class TestSengiri(unittest.TestCase):
+
+    def test_has_delimiter(self):
+        self.assertTrue(sengiri.sengiri._has_delimiter('♡', '記号,一般,*,*,*,*,♡,,,,'))
+        self.assertTrue(sengiri.sengiri._has_delimiter('。', '記号,句点,*,*,*,*,。,。,。'))
 
 
-def test_analyze_by_mecab():
-    test_cases = copy.copy(TEST_CASES)
-    del test_cases['大変なことになった。（後で聞いたのだが、脅されたらしい）（脅迫はやめてほしいと言っているのに）']
-    for (source, expected) in test_cases.items():
-        actual = sengiri.sengiri._analyze_by_mecab(source, '', 3)
-        assert_equal(actual, expected)
+    def test_analyze_by_mecab(self):
+        test_cases = copy.copy(TEST_CASES)
+        del test_cases['大変なことになった。（後で聞いたのだが、脅されたらしい）（脅迫はやめてほしいと言っているのに）']
+        for (source, expected) in test_cases.items():
+            actual = sengiri.sengiri._analyze_by_mecab(source, '', 3)
+            self.assertEqual(actual, expected)
 
 
-def test_tokenize():
-    for (source, expected) in TEST_CASES.items():
-        actual = sengiri.tokenize(source)
-        assert_equal(actual, expected)
+    def test_tokenize(self):
+        for (source, expected) in TEST_CASES.items():
+            actual = sengiri.tokenize(source)
+            self.assertEqual(actual, expected)
+
+
+if __name__ == "__main__":
+    unittest.main()
