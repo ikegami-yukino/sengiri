@@ -1,6 +1,6 @@
 sengiri
 ==========
-|travis| |coveralls| |pyversion| |version| |license|
+|pyversion| |version| |license| |download| |nowarnonukes|
 
 Yet another sentence-level tokenizer for the Japanese text
 
@@ -45,13 +45,6 @@ USAGE
   print(sengiri.tokenize('http://www.inpaku.go.jp/'))
   #=>['http://www.inpaku.go.jp/']
 
-.. |travis| image:: https://travis-ci.org/ikegami-yukino/sengiri.svg?branch=master
-    :target: https://travis-ci.org/ikegami-yukino/sengiri
-    :alt: travis-ci.org
-
-.. |coveralls| image:: https://coveralls.io/repos/ikegami-yukino/sengiri/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/ikegami-yukino/sengiri?branch=master
-    :alt: coveralls.io
 
 .. |pyversion| image:: https://img.shields.io/pypi/pyversions/sengiri.svg
 
@@ -62,3 +55,10 @@ USAGE
 .. |license| image:: https://img.shields.io/pypi/l/sengiri.svg
     :target: http://pypi.python.org/pypi/sengiri/
     :alt: license
+
+.. |download| image:: https://static.pepy.tech/personalized-badge/sengiri?period=total&units=international_system&left_color=black&right_color=blue&left_text=Downloads
+    :target: https://pepy.tech/project/sengiri
+    :alt: download
+
+.. |nowarnonukes| image:: https://img.shields.io/badge/NO%20WAR-NO%20NUKES-brightgreen
+    :alt: NO WAR

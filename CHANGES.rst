@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+0.2.3 (2025-11-28)
+------------------
+
+- Enhanced URL handling stability using MeCab's partial parsing and regex
+- Resolve problem about the dependency module (emoji)
+- Support Python 3.9-3.14
+- Drop supporting Python 3.4-3.8
+
 0.2.2 (2019-10-15)
 ------------------
 
