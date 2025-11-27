@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .sengiri import tokenize
+
 """sengiri
 
 This module provides the Japanese sentence-level tokenizer.

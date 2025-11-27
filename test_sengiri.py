@@ -1,8 +1,7 @@
 import copy
-
 import unittest
-import sengiri.sengiri
 
+import sengiri.sengiri
 
 TEST_CASES = {
     'うーん🤔🤔🤔どうしよう': ['うーん🤔🤔🤔', 'どうしよう'],
