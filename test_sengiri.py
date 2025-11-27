@@ -23,6 +23,19 @@ TEST_CASES = {
 
 class TestSengiri(unittest.TestCase):
 
+    def test__find_url_positions(self):
+        test_cases = {
+            'Visit https://www.inpaku.go.jp for more info.': [{'start': 6, 'end': 30}],
+            'No URLs here!': [],
+            'Multiple URLs: http://foo.com and https://bar.net/page': [
+                {'start': 15, 'end': 29},
+                {'start': 34, 'end': 54}
+            ]
+        }
+        for (text, expected) in test_cases.items():
+            actual = sengiri.sengiri._find_url_positions(text)
+            self.assertEqual(actual, expected)
+
     def test_has_delimiter(self):
         self.assertTrue(sengiri.sengiri._has_delimiter('♡', '記号,一般,*,*,*,*,♡,,,,'))
         self.assertTrue(sengiri.sengiri._has_delimiter('。', '記号,句点,*,*,*,*,。,。,。'))

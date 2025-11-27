@@ -2,7 +2,8 @@ import os
 import re
 import shutil
 import subprocess
-from typing import Optional
+from collections.abc import Sequence
+from typing import Optional, Union
 
 import emoji
 import MeCab  # type: ignore
@@ -15,6 +16,7 @@ OPEN_BRACKETS: str = "｢「(（[［【『〈《〔｛{«‹〖〘〚"
 CLOSE_BRACKETS: str = "｣」)）]］】』〉》〕｝}»›〗〙〛"
 BRACKETS: set[str] = set(OPEN_BRACKETS) | set(CLOSE_BRACKETS)
 LAUGHING = ("w", "ww", "www", "wwww")
+re_url_pattern: re.Pattern = re.compile(r"https?://[a-zA-Z\d/:%#\$&\?\(\)~\.=\+\-]+")
 re_parenthesis: Optional[re.Pattern] = None
 prev_parenthesis_threshold: int = 0
 
@@ -44,7 +46,7 @@ def _create_macab_tagger(mecab_args: str) -> MeCab.Tagger:
         tagger = MeCab.Tagger(mecab_args)
     except RuntimeError as e:
         message = str(e)
-        if ("[ifs] no such file or directory:" in message) and ("/mecabrc" in message):
+        if ("[ifs] no such file or directory:" in message) and (message.rstrip().endswith("/mecabrc")):
             message += MECAB_PY3_RC_ERROR_MSG
             raise RuntimeError(message)
         else:
@@ -54,17 +56,61 @@ def _create_macab_tagger(mecab_args: str) -> MeCab.Tagger:
     return tagger
 
 
-def _has_delimiter(surface, features):
+def _partial_parse(tagger: MeCab.Tagger, constraints: Sequence[Union[Sequence[str], str]]) -> str:
+    tagger.set_partial(True)
+    text = ""
+    for constraint in constraints:
+        if isinstance(constraint, str):
+            text += constraint
+        else:
+            text += constraint[0]
+            if len(constraint) > 1:
+                text += "\t" + constraint[1]
+        text += "\n"
+    result = tagger.parse(text).rstrip()
+    tagger.set_partial(False)
+    return result
+
+
+def _find_url_positions(text: str) -> list[dict[str, int]]:
+    matches = re_url_pattern.finditer(text)
+    results = []
+    for match in matches:
+        results.append({
+            "start": match.start(),
+            "end": match.end()
+        })
+    return results
+
+def _has_delimiter(surface: str, features: str) -> bool:
     return ((features.startswith("記号,一般,") and surface not in BRACKETS)
             or any(surface == d for d in DELIMITERS)
                 or all(c in DELIMITERS for c in surface))
 
 
-def _analyze_by_mecab(line, mecab_args, emoji_threshold) -> list[str]:
+def _analyze_by_mecab(line: str, mecab_args: str, emoji_threshold: int) -> list[str]:
     tagger: MeCab.Tagger = _create_macab_tagger(mecab_args)
-    pairs: list[list[str]] = [l.split("\t") for l in tagger.parse(line).splitlines()[:-1]]
+    parsed_text: str
 
-    sentence: list[str] = []
+    # Handle URLs
+    url_positions: list[dict[str, int]] = _find_url_positions(line)
+    if url_positions:
+        constraints: list[Sequence[str] | str] = []
+        last_pos: int = 0
+        for url_pos in url_positions:
+            if last_pos < url_pos["start"]:
+                constraints.append(line[last_pos:url_pos["start"]])
+            constraints.append([line[url_pos["start"]:url_pos["end"]], "記号,一般,*,*,*,*,*"])
+            last_pos = url_pos["end"]
+        if last_pos < len(line):
+            constraints.append(line[last_pos:len(line)])
+        parsed_text = _partial_parse(tagger, constraints)
+    else:
+        parsed_text = tagger.parse(line)
+
+    pairs: list[list[str]] = [l.split("\t") for l in parsed_text.splitlines()[:-1]]
+
+    sentence: str = ""
     result: list[str] = []
     has_delimiter_flag: bool = False
     emoji_count: int = 0
@@ -73,36 +119,33 @@ def _analyze_by_mecab(line, mecab_args, emoji_threshold) -> list[str]:
         if all(c in EMOJIS for c in surface):
             emoji_count += len(surface)
             if sentence and emoji_count >= emoji_threshold and pairs[i+1][0] not in EMOJIS:
-                sentence.append(surface)
-                result.append("".join(sentence))
-                sentence = []
+                sentence += surface
+                result.append(sentence)
+                sentence = ""
                 emoji_count = 0
                 continue
         elif surface in BRACKETS:
             has_delimiter_flag = False
         elif _has_delimiter(surface, features):
             has_delimiter_flag = True
-
-        # Check www is not in a part of URL
-        elif (sentence and sentence[-1] not in ("http://", "https://")
-                and surface in LAUGHING):
+        elif surface in LAUGHING:
             has_delimiter_flag = True
-        elif has_delimiter_flag is True and surface == "." and sentence[-1] in LAUGHING:
+        elif has_delimiter_flag is True and surface == "." and sentence.endswith(LAUGHING):
             has_delimiter_flag = False
-
         elif has_delimiter_flag is True:
-            result.append("".join(sentence))
-            sentence = []
+            result.append(sentence)
+            sentence = ""
             has_delimiter_flag = False
 
-        sentence.append(surface)
+        sentence += surface
 
-    sentence.append(pairs[-1][0])
-    result.append("".join(sentence))
+    sentence += pairs[-1][0]
+    result.append(sentence)
     return result
 
 
-def tokenize(doc: str, mecab_args: str="", emoji_threshold: int=3, parenthesis_threshold: int=10) -> list[str]:
+def tokenize(doc: str, mecab_args: str = "", emoji_threshold: int = 3,
+             parenthesis_threshold: int = 10) -> list[str]:
     """Split document into sentences
 
     Parameters
