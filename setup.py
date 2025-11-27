@@ -7,7 +7,7 @@ from setuptools import setup
 
 install_requires = ["emoji>=2.7.0"]
 if not importlib.util.find_spec("MeCab"):
-    install_requires.append("mecab")
+    install_requires.append("mecab-python3")
 
 with open(os.path.join("sengiri", "__init__.py"), "r", encoding="utf8") as f:
     version = re.compile(
